@@ -27,7 +27,7 @@ def benchmark(begindate,enddate):
     condition="S_INFO_WINDCODE='399300.SZ' and TRADE_Dt>='"+begindate+"' and TRADE_Dt<='"+enddate+"'"
     data="DISTINCT TRADE_Dt,S_DQ_PCTCHANGE"
     order="TRADE_Dt"
-    benchrtn=bf.gettingdata(data,tablename,condition,order)
+    benchrtn=bf.get_data_from_DB(data, tablename, condition, order)
     benchrtn=pd.DataFrame(benchrtn)
     benchrtn[1]=benchrtn[1]/100
     return benchrtn
@@ -45,7 +45,7 @@ def backtest(SelectStockCell,moneyAmount):
     condition="TRADE_DAYS>='"+begindate+"' and TRADE_DAYS<='"+enddate+"'"
     data="DISTINCT TRADE_DAYS"
     order="TRADE_DAYS"
-    TRADE_DAYS=bf.gettingdata(data,tablename,condition,order)
+    TRADE_DAYS=bf.get_data_from_DB(data, tablename, condition, order)
     TRADE_DAYS=pd.DataFrame(TRADE_DAYS)
     
     #调仓日期
@@ -80,7 +80,7 @@ def backtest(SelectStockCell,moneyAmount):
             "' and TRADE_Dt<='"+TRADE_DAYS[0][k1]+"'"           
             data="TRADE_Dt,S_INFO_WINDCODE,S_DQ_OPEN,S_DQ_close,S_DQ_ADJFACTOR"
             order="TRADE_Dt,S_INFO_WINDCODE"
-            price=bf.gettingdata(data,tablename,condition,order)
+            price=bf.get_data_from_DB(data, tablename, condition, order)
             price=pd.DataFrame(price)
             todayprice=price.loc[price[0]==TRADE_DAYS[0][k],[1,2,3,4]] 
             #每次调仓时计算新持仓
