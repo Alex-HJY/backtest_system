@@ -5,7 +5,7 @@ Created on Tue Dec 11 14:00:03 2018
 @author: zhangby
 """
 
-import basicfunc as bf
+from 张博雅 import basicfunc as bf
 import pandas as pd
 import numpy as np
 #调仓信息类，包括日期，代码，权重

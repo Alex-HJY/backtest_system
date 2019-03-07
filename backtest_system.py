@@ -12,11 +12,10 @@ import matplotlib.pyplot as plt
 from datetime import timedelta
 from dateutil import parser
 from datetime import datetime
-
+from dateutil.relativedelta import relativedelta
 
 class backtest_system:
-    def __init__(self, price_data=pd.DataFrame(), benchmark_code='', initial_money=1000000, save_dir='', start_date='',
-                 end_date=''):
+    def __init__(self, price_data=pd.DataFrame(), benchmark_code='000300', initial_money=1000000, save_dir=''):
         """
         构建回测系统时的初始化函数
 
@@ -27,8 +26,6 @@ class backtest_system:
         :return backtest_result: 回测结果,DataFrame格式
         """
         self.benchmark_code = benchmark_code
-        self.start_date = parser.parse(start_date)
-        self.end_date = parser.parse(end_date)
         self.strategies_data = {}  # 存放本系统中运行的策略对应的回测数据
         self.strategies_indexes = {}  # 存放本系统中运行的策略对应的回测指标
         self.price_data = deepcopy(price_data)
@@ -36,8 +33,13 @@ class backtest_system:
         self.benchmark_value = self.cal_benchmark_value(benchmark_code)
         self.init_money = initial_money
         self.save_dir = save_dir
-        self.backtest_result = pd.DataFrame()
+        self.backtest_result = price_data
         self.today = datetime.today()
+
+    def get_trade_calander(self):
+        df = pd.read_csv('000300SH.csv', encoding='utf-8-sig', index_col='Date')
+        df.index = pd.DatetimeIndex(df.index)
+        return df.index
 
     def order_by_share(self, target_stock, target_share):
         pass
@@ -53,8 +55,9 @@ class backtest_system:
 
     # =====================需要重写
 
-    def back_test_by_day(self, strategy_name='', trade_func='', before_trade_func='',
-                         after_trade_func='', show=True):
+    def back_test_by_day(self,trade_func, strategy_name='', before_trade_func='',
+                         after_trade_func='', start_date='',
+                         end_date='', show=True):
         """
 
         :param show: 是否画图
@@ -68,13 +71,16 @@ class backtest_system:
         """
 
         # 设定初始参数
+
+        self.start_date = parser.parse(start_date)
+        self.end_date = parser.parse(end_date)
         price_data = self.price_data
         value = self.init_money
         cash = self.init_money
         portfolio = {}
         df_to_today = pd.DataFrame()
         backtest_result = self.backtest_result
-        one_day = timedelta(days=1)
+        one_day = relativedelta(days=1)
         start_date = self.start_date
         end_date = self.end_date
         today = start_date
@@ -95,7 +101,7 @@ class backtest_system:
                 backtest_result.loc[today, 'portfolio'] = portfolio
             today = today + one_day
 
-        self.strategies_data[strategy_name] = backtest_result
+        self.strategies_data[strategy_name] = backtest_result[['value'],'cash''portfolio']
         self.strategies_indexes[strategy_name] = self.calculate_indexes([strategy_name])
 
         if show:
@@ -127,7 +133,7 @@ class backtest_system:
         :param strategies_name: 策略名称，数组
         :return: 无
         """
-
+        pass
         indexes = pd.DataFrame()
         for name in strategies_name:
             df = deepcopy(self.strategies_data[name])
@@ -182,6 +188,7 @@ class backtest_system:
             index = pd.DataFrame(index)
         indexes = indexes.append(index)
         return indexes
+
 
 '''
 

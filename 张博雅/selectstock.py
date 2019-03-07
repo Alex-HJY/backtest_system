@@ -5,10 +5,8 @@ Created on Wed Dec 19 17:30:49 2018
 @author: zhangby
 """
 
-import backtest as bt
-import basicfunc as bf
+from 张博雅 import backtest as bt, basicfunc as bf
 import pandas as pd
-import numpy as np
 
 stockpool = '399330.SZ'
 changedt = ['20180101', '20180201', '20180301']

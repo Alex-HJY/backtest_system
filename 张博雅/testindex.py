@@ -5,8 +5,7 @@ Created on Tue Dec 11 14:00:03 2018
 @author: zhangby
 """
 
-import backtest as bt
-import pandas as pd
+from 张博雅 import backtest as bt
 import numpy as np
 import matplotlib.pyplot as pl
         
