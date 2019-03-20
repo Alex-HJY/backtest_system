@@ -1,6 +1,6 @@
 # coding: utf-8
 """
-Created on 2019/1/23,2:11 PM
+Created on 2019/2/23,2:11 PM
 
 By Alex_HJY
 """
@@ -14,8 +14,10 @@ from dateutil import parser
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 
+
 class backtest_system:
-    def __init__(self, price_data=pd.DataFrame(), benchmark_code='000300', initial_money=1000000, save_dir=''):
+    def __init__(self, price_data=pd.DataFrame(), benchmark_code='000300SH', initial_money=1000000,
+                 save_dir='./Strategy/'):
         """
         构建回测系统时的初始化函数
 
@@ -30,14 +32,14 @@ class backtest_system:
         self.strategies_indexes = {}  # 存放本系统中运行的策略对应的回测指标
         self.price_data = deepcopy(price_data)
         self.price_data.index = pd.DatetimeIndex(self.price_data.index)
-        self.benchmark_value = self.cal_benchmark_value(benchmark_code)
+
         self.init_money = initial_money
         self.save_dir = save_dir
-        self.backtest_result = price_data
+        self.backtest_result = pd.DataFrame()
         self.today = datetime.today()
 
-    def get_trade_calander(self):
-        df = pd.read_csv('000300SH.csv', encoding='utf-8-sig', index_col='Date')
+    def get_trade_calendar(self):
+        df = pd.read_csv(self.benchmark_code + '.csv', encoding='utf-8-sig', index_col='Date')
         df.index = pd.DatetimeIndex(df.index)
         return df.index
 
@@ -50,12 +52,12 @@ class backtest_system:
     def cal_benchmark_value(self, benchmark_code):
         benchmark_price = self.price_data[benchmark_code]
         benchmark_price = benchmark_price[self.start_date:self.end_date]
-        share = benchmark_price.iloc[0] / self.init_money
+        share =  self.init_money/ float(benchmark_price.iloc[0])
         return benchmark_price * share
 
     # =====================需要重写
 
-    def back_test_by_day(self,trade_func, strategy_name='', before_trade_func='',
+    def back_test_by_day(self, trade_func, strategy_name='', before_trade_func='',
                          after_trade_func='', start_date='',
                          end_date='', show=True):
         """
@@ -84,24 +86,27 @@ class backtest_system:
         start_date = self.start_date
         end_date = self.end_date
         today = start_date
-        bench_mark = self.benchmark_code
 
-        backtest_result.index = price_data.index
+        bench_mark = self.benchmark_code
+        self.benchmark_value = self.cal_benchmark_value(self.benchmark_code)
+
+        # backtest_result.index = price_data.index
         backtest_result['value'] = ''
-        backtest_result['cash'] = ''
-        backtest_result['portfolio'] = ''
+        backtest_result['cash'] =''
+        backtest_result['portfolio'] ={}
 
         # 按天回测
         while today < end_date:
             if today in price_data.index:
                 df_to_today = df_to_today.append(price_data.loc[today])
                 value, cash, portfolio = trade_func(df_to_today, today, value, cash, portfolio)
-                backtest_result.loc[today, 'value'] = value
-                backtest_result.loc[today, 'cash'] = cash
-                backtest_result.loc[today, 'portfolio'] = portfolio
+                backtest_result.ix[today, 'value'] = value
+                backtest_result.ix[today, 'cash'] = cash
+                backtest_result.ix[today, 'portfolio'] = portfolio
+
             today = today + one_day
 
-        self.strategies_data[strategy_name] = backtest_result[['value'],'cash''portfolio']
+        self.strategies_data[strategy_name] = backtest_result[['value', 'cash', 'portfolio']]
         self.strategies_indexes[strategy_name] = self.calculate_indexes([strategy_name])
 
         if show:
@@ -121,7 +126,9 @@ class backtest_system:
         plt.plot(self.benchmark_value.index, self.benchmark_value, label=self.benchmark_code)
         for strategy in strategies_name:
             df = self.strategies_data[strategy]
-            plt.plot(df.index, df['money'], label=strategy)
+            print(df.index, df['value'])
+
+            plt.plot(df['value'], label=strategy)
         plt.legend()
         plt.show()
         return None
@@ -133,7 +140,8 @@ class backtest_system:
         :param strategies_name: 策略名称，数组
         :return: 无
         """
-        pass
+
+
         indexes = pd.DataFrame()
         for name in strategies_name:
             df = deepcopy(self.strategies_data[name])
@@ -161,7 +169,7 @@ class backtest_system:
             win = df[(df['value'] - df['value'].shift(-1)) > 0]['value'].count() * 1.0 / df.__len__()
 
             # beta alpha
-            df[name + '_rtn'] = (df[name] - df['value'].shift(-1)) / df['value'] * 100
+            df[name + '_rtn'] = (df['value'] - df['value'].shift(-1)) / df['value'] * 100
 
             df[self.benchmark_code + '_rtn'] = (df[self.benchmark_code + '_money'] - df[
                 self.benchmark_code + '_money'].shift(-1)) / \
