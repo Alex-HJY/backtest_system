@@ -18,6 +18,7 @@ import backtest_system
 
 import trade_funcs
 
+#导入黑体字体，防止无法显示中文
 plt.rcParams['font.sans-serif'] = ['STHeiti']
 plt.rcParams['axes.unicode_minus'] = False
 

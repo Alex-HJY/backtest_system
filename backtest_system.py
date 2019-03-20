@@ -14,6 +14,10 @@ from dateutil import parser
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 
+#导入黑体字体，防止无法显示中文
+plt.rcParams['font.sans-serif'] = ['STHeiti']
+plt.rcParams['axes.unicode_minus'] = False
+
 
 class backtest_system:
     def __init__(self, price_data=pd.DataFrame(), benchmark_code='000300SH', initial_money=1000000,
