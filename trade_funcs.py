@@ -43,7 +43,7 @@ def trade_func(df_to_today, today, value, cash, portfolio):
     month_now-= relativedelta(days=month_now.day)
     trend = trends.loc[month_now]
     portfolio_new = {}
-    value = cash
+
     for k, v in portfolio.items():
         cash += df_to_today.loc[today, k] * v
 

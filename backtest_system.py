@@ -106,8 +106,7 @@ class backtest_system:
                 value, cash, portfolio = trade_func(df_to_today, today, value, cash, portfolio)
                 backtest_result.ix[today, 'value'] = value
                 backtest_result.ix[today, 'cash'] = cash
-                backtest_result.ix[today, 'portfolio'] = portfolio
-
+                backtest_result.ix[today, 'portfolio'] = portfolio.__str__
             today = today + one_day
 
         self.strategies_data[strategy_name] = backtest_result[['value', 'cash', 'portfolio']]
