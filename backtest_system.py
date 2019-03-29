@@ -85,7 +85,7 @@ class backtest_system:
         cash = self.init_money
         portfolio = {}
         df_to_today = pd.DataFrame()
-        backtest_result = self.backtest_result
+        backtest_result =pd.DataFrame()
         one_day = relativedelta(days=1)
         start_date = self.start_date
         end_date = self.end_date
@@ -186,7 +186,8 @@ class backtest_system:
                         self.benchmark_code + '_money']) ** (
                              250 * 1.0 / df.__len__()) - 1) - 0.0284)
 
-            index = {'策略收益': [str((df.iloc[-1]['value'] * 1.0 / df.iloc[0]['value']) * 100)],
+            index = {'策略名称':name,
+                     '策略收益': [str((df.iloc[-1]['value'] * 1.0 / df.iloc[0]['value']) * 100)],
                      '基准收益': [str(((df.iloc[-1][self.benchmark_code + '_money'] * 1.0 / df.iloc[0][
                          self.benchmark_code + '_money'])) * 100)],
 
@@ -197,7 +198,7 @@ class backtest_system:
                      'alpha': [alpha],
                      'beta': [beta]}
             index = pd.DataFrame(index)
-        indexes = indexes.append(index)
+            indexes = indexes.append(index)
         return indexes
 
 
